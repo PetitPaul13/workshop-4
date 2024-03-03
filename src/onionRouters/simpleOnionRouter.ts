@@ -73,6 +73,12 @@ export async function simpleOnionRouter(nodeId: number) {
       res.status(500).send('Error processing message');
     }
   });
+  
+  // Etape 3.2 :
+  onionRouter.get("/getPrivateKey", (req, res) => {
+    res.json({ result: privateKeyBase64 });
+  });
+
 
   // On lance le serveur et on écoute sur le PORT
   const server = onionRouter.listen(BASE_ONION_ROUTER_PORT + nodeId, () => {
