@@ -57,8 +57,10 @@ export async function simpleOnionRouter(nodeId: number) {
       lastReceivedDecryptedMessage = remainingMessage;
 
       // Ensuite on envoie le message à la prochaine destination
-      await axios.post(`http://localhost:${destination}/message`, {
-        message: remainingMessage,
+      await fetch(`http://localhost:${destination}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: remainingMessage }),
       });
 
       // Pour afficher la réussite du process
