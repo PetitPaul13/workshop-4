@@ -21,27 +21,27 @@ export async function launchRegistry() {
   app.use(express.json());
   app.use(bodyParser.json());
 
-  // Route pour le statut du registre
+  // On définit la route pour le statut du Registre
   app.get("/status", (req, res) => {
     res.send("live");
   });
 
-  // Registre des noeuds
+  // On initialise une variable qui coontiendra tous les noeuds : le registre
   let nodesRegistry: Node[] = [];
 
-  // Route pour enregistrer un noeud
+  // On définis la route pour enregistrer un noeud
   app.post("/registerNode", (req: Request, res: Response) => {
     const { nodeId, pubKey }: { nodeId: number; pubKey: string } = req.body;
     nodesRegistry.push({ nodeId, pubKey });
     res.status(200).send("Node registered successfully");
   });
 
-  // Route pour obtenir le registre des noeuds
+  // Ici on définit la route pour obtenir le registre des noeuds
   app.get("/getNodeRegistry", (req, res) => {
     res.json({ nodes: nodesRegistry });
   });
 
-  // Démarrage du serveur Registry
+  // Finalement on peut démarer le serveur Registry
   const server = app.listen(REGISTRY_PORT, () => {
     console.log(`Registry is listening on port ${REGISTRY_PORT}`);
   });

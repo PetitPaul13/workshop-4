@@ -50,16 +50,16 @@ export async function user(userId: number) {
     res.status(200).json({ result: lastCircuit.map((node) => node.nodeId) });
   });
 
-  // Route pour envoyer un message
+  // Route pour envoyer un message : plus complexe
   _user.post("/sendMessage", async (req, res) => {
     const { message, destinationUserId } = req.body;
 
-    // Récupérer la liste des noeuds
+    // Premièrement on récupére la liste des noeuds
     const nodes = await fetch(`http://localhost:8080/getNodeRegistry`)
         .then((res) => res.json() as Promise<GetNodeRegistryBody>)
         .then((body) => body.nodes);
 
-    // Créer un circuit de 3 noeuds aléatoires
+    // Ensuite on créer un circuit de 3 noeuds aléatoires
     let circuit: Node[] = [];
     while (circuit.length < 3) {
       const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
@@ -68,7 +68,7 @@ export async function user(userId: number) {
       }
     }
 
-    // Préparer le message à envoyer
+    // Il nous reste plus qu'a préparer le message à envoyer
     let destination = `${BASE_USER_PORT + destinationUserId}`.padStart(10, "0");
     let finalMessage = message;
     for (const node of circuit) {
@@ -80,12 +80,12 @@ export async function user(userId: number) {
       finalMessage = encryptedSymKey + encryptedMessage;
     }
 
-    // Inverser le circuit pour avoir l'ordre des noeuds correct
+    // On oublie pas d'inverser le circuit pour avoir l'ordre des noeuds correct
     circuit.reverse();
     lastCircuit = circuit;
     lastSentMessage = message;
 
-    // Envoyer le message chiffré au premier noeud du circuit
+    // Enfin on peut envoyer le message chiffré au premier noeud du circuit
     await fetch(`http://localhost:${BASE_ONION_ROUTER_PORT + circuit[0].nodeId}/message`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,7 +95,7 @@ export async function user(userId: number) {
     res.status(200).send("success");
   });
 
-  // Démarrer le serveur User
+  // Finalement on peut démarrer le serveur User
   const server = _user.listen(BASE_USER_PORT + userId, () => {
     console.log(`User ${userId} is listening on port ${BASE_USER_PORT + userId}`);
   });
