@@ -1,8 +1,11 @@
-import bodyParser from "body-parser";
 import express, { Request, Response } from "express";
+import bodyParser from "body-parser";
 import { REGISTRY_PORT } from "../config";
 
-export type Node = { nodeId: number; pubKey: string };
+export type Node = {
+  nodeId: number;
+  pubKey: string;
+};
 
 export type RegisterNodeBody = {
   nodeId: number;
@@ -14,39 +17,33 @@ export type GetNodeRegistryBody = {
 };
 
 export async function launchRegistry() {
-  const _registry = express();
-  _registry.use(express.json());
-  _registry.use(bodyParser.json());
+  const app = express();
+  app.use(express.json());
+  app.use(bodyParser.json());
 
-  // Etape 1.3 :
-  _registry.get("/status", (req, res) => {
-    res.send('live');
+  // Route pour le statut du registre
+  app.get("/status", (req, res) => {
+    res.send("live");
   });
 
-  // Etape 3.1 :
+  // Registre des noeuds
   let nodesRegistry: Node[] = [];
 
-  _registry.post("/registerNode", (req: Request, res: Response) => {
-
-    // On créeer un nouveau noeud : sous une ligne
+  // Route pour enregistrer un noeud
+  app.post("/registerNode", (req: Request, res: Response) => {
     const { nodeId, pubKey }: { nodeId: number; pubKey: string } = req.body;
-
-    // On ajoute le noeud au registre
     nodesRegistry.push({ nodeId, pubKey });
-
-    // Pour savoir si ca marche
     res.status(200).send("Node registered successfully");
   });
 
-  // Etape 3.4 :
-  _registry.get('/getNodeRegistry', (req, res) => {
+  // Route pour obtenir le registre des noeuds
+  app.get("/getNodeRegistry", (req, res) => {
     res.json({ nodes: nodesRegistry });
   });
 
-
-  // Lancement du serveur de registre
-  const server = _registry.listen(REGISTRY_PORT, () => {
-    console.log(`registry is listening on port ${REGISTRY_PORT}`);
+  // Démarrage du serveur Registry
+  const server = app.listen(REGISTRY_PORT, () => {
+    console.log(`Registry is listening on port ${REGISTRY_PORT}`);
   });
 
   return server;
